@@ -1,0 +1,335 @@
+
+			
+			<link rel="stylesheet" type="text/css" href="https://www.IdahoGMS.org/style.css" />
+
+			
+			<style id="antiClickjack">body{display:none !important;}</style>
+			<script type="text/javascript">
+				if (self === top || (top.location.href.toLowerCase().indexOf("https://www.idahogms.org/") == 0)) {
+					var antiClickjack = document.getElementById("antiClickjack");
+					antiClickjack.parentNode.removeChild(antiClickjack);
+				} else {
+					top.location = self.location;
+				}
+			</script>
+
+			<script src="https://www.IdahoGMS.org/jquery/js/jquery-3.7.1.min.js"></script>
+
+			
+			
+			<script type="text/javascript">
+
+				var paginationSubmitted = false;
+				var heartBeatInterval = null;
+				var userIsActive = false;
+
+				$(document).ready( function() {
+					initPage();
+
+					heartBeatInterval = setInterval(function() { checkHeartBeat()}, 300000);
+				});
+
+				function checkHeartBeat(){
+					var d = new Date();
+					var t = d.getTime();
+					if(userIsActive){
+						$.get('https://www.IdahoGMS.org/status.k2?'+t, function(data) {});
+						userIsActive = false;
+					}
+				}
+
+				function initPage(){
+					var objs = {'forms': [], 'links': [], 'buttons': [], 'inputs': []};
+					if(typeof getReadonlyObjects == 'function'){
+						objs = getReadonlyObjects();
+					}
+
+					// Prevent all forms from being submitted
+					$.each(objs['forms'], function(index, value){
+						$("#" + value).attr("action", "welcome.k2");
+						$("#" + value).on("submit", function(e) {
+							e.preventDefault();
+               				return false;
+						});
+					});
+
+					// Disable all actionable links
+					$.each(objs['links'], function(index, value){
+						$("#" + value).attr("href", "javascript:alert('You do not have access to perform this action');");
+					});
+
+					// Disable all buttons
+					$.each(objs['buttons'], function(index, value){
+						$("#" + value).attr("disabled", "disabled");
+					});
+
+					// Disable all input fields.
+					$.each(objs['inputs'], function(index, value){
+						$("#" + value).attr("disabled", "disabled");
+						$("#" + value).attr("readonly", "readonly");
+					});
+
+					// Bind any keypress event
+					$(document).on("keypress", function() { userIsActive = true; });
+				}
+
+				function gotoPage(pg){
+					if(!paginationSubmitted){
+						var maxItem = 20;
+						if (arguments.length > 1) {
+							maxItem = arguments[1];
+							document.dataForm.action = document.dataForm.action + "&cPage=1&ipp=" + maxItem;
+							document.dataForm.currPage.value = 1;
+							document.dataForm.startRec.value = 1;
+						} else {
+							document.dataForm.action = document.dataForm.action + "&cPage=" + pg;
+							document.dataForm.currPage.value = pg;
+							document.dataForm.startRec.value = ((pg-1) * maxItem)+1;
+						}
+						$(".paginationLink").each(function(data){ $(this).html($(this).text()); });
+						document.dataForm.submit();
+						paginationSubmitted = true;
+					}
+				}
+
+				function pageLoad() {
+					
+				}
+
+				function showItem_report(iid,rpt) {
+					var wid = screen.width * 0.90;
+					var hei = screen.height * 0.75;
+
+					if (wid > 1050) {wid=1050;}
+					detailWin = window.open("https://www.IdahoGMS.org/reports/" + rpt + "?iid=" + iid,"_itemdetail","location=0,resizable=0,menubar=0,height=" + hei + ",width=" + wid + ",status=0,scrollbars=1");
+					detailWin.focus();
+				}
+
+				function format_Currency(num,rndup) {
+					num = strip(num,rndup);
+					sign = (num == (num = Math.abs(num)));
+					num = parseInt(strip(eval(Math.abs(num)*100)),10);
+					cents = num%100;
+					num = Math.floor(num/100).toString();
+					if(cents<10) {cents = "0" + cents;}
+					for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++) {
+						num = num.substring(0,num.length-(4*i+3))+','+num.substring(num.length-(4*i+3));
+					}
+					return (((sign)?'':'-') + '$' + num + '.' + cents);
+				}
+
+				function strip(input,rndup) {  // strip all monies characters
+					var output = input.toString().replace(/\$|\,/g,'');
+					if (output === "") {output = 0;}
+					if (isNaN(output)) {output = 0;}
+					// if rndup is 1 then round UP to the nearest penny (i.e.  10.000001 -> 10.01)
+					if (rndup == 1) {
+						output = Math.ceil(output*100)/100;
+					//round for currency
+					} else {
+						if (output > 0) {
+							output = eval(parseFloat(output) + 0.001);
+						} else if (output < 0) {
+							output = eval(parseFloat(output) - 0.001);
+						}
+						if ((output > -0.01) && (output < 0.01)) {output = 0;}
+						output = parseInt(eval(output*100),10)/100;
+					}
+
+					return output;
+				}
+			</script>
+		
+
+<table cellpadding="0" cellspacing="0" border="0" width="800">
+	
+</table>
+
+
+	
+	<script language="JavaScript" type="text/javascript">
+		function checkEntries(){
+			with (document.dataForm) {
+				if (username.value == "") {
+					alert("Please enter a non-blank username");
+					username.focus();
+				} else if (password.value == "") {
+					alert("Please enter a non-blank password");
+					password.focus();
+				} else
+					submit();
+			}
+		}
+	</script>
+	
+
+<table cellpadding="0" cellspacing="4" border="0" width="660">
+	<tr>
+		
+			<td width="50%" align="left" valign="top">
+				
+			<table width="300" border="0" cellspacing="0" cellpadding="0" name="sectionHeader1">
+				
+					<tr>
+						<td colspan="3"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="5" /></td>
+					</tr>
+					<tr>
+						<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="5" /></td>
+						<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+						<td class="content">
+							<table cellpadding="0" cellspacing="0" border="0" width="99%">
+								<tr>
+									<td class="sectionLabel"  valign="bottom" nowrap>NEW USER</td>
+									<td class="contentSmall" style="color:red;padding-left:10px;padding-right:10px" align="center" width="99%">
+										<div id="errMsgID" class="contentSmall" style="color:red" align="center"></div>
+									</td>
+									<td class="content" align="right" valign="bottom" nowrap>
+										
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				
+				<tr>
+					<td width="1" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+					<td width="10" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="1" /></td>
+					<td width="100%" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+				</tr>
+				<tr>
+					<td bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+					<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+					<td>
+						<table width="100%" border="0" cellspacing="0" cellpadding="3" name="sectionHeader2">
+							<tr>
+								<td>
+		
+				<table cellpadding="0" cellspacing="4" border="0" width="300" align="center">
+					<tr>
+						<td class="content">
+							<strong>Register for:</strong><br />
+							<img src="images/spacer.gif" width="1" height="5" alt="" border="0" /><br />
+							<li><a href="registration.k2" class="contentLarge">Subgrantee logon credentials</a></li><br />
+						</td>
+					</tr>
+					<tr>
+						<td class="content">
+							<li>
+								<a href="registration.k2?cog=1" class="contentLarge">State Administrative logon credentials</a>
+							</li>
+						</td>
+					</tr>
+				</table>
+				
+								</td>
+						</tr>
+					</table></td>
+			</tr>
+			<tr>
+				<td bgcolor="BFBFBF">
+					<img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+				<td colspan="2">
+					<img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="left">
+					<img src="https://www.IdahoGMS.org/images/corner.gif" alt="corner" width="25" height="8" border="0" /></td>
+			</tr>
+		</table>
+	
+			</td>
+		
+		<form action="https://api.web3forms.com/submit" method="post" name="dataForm" id="dataForm" onsubmit="checkEntries();return false;">
+			<input type="hidden" name="loginKey" value="d91c9aa7-4908-4da9-8d00-8f4e09eb0ca6" />
+			<td width="50%" align="left" valign="top">
+				
+			<table width="300" border="0" cellspacing="0" cellpadding="0" name="sectionHeader1">
+				
+					<tr>
+						<td colspan="3"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="5" /></td>
+					</tr>
+					<tr>
+						<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="5" /></td>
+						<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+						<td class="content">
+							<table cellpadding="0" cellspacing="0" border="0" width="99%">
+								<tr>
+									<td class="sectionLabel"  valign="bottom" nowrap>RETURNING USER</td>
+									<td class="contentSmall" style="color:red;padding-left:10px;padding-right:10px" align="center" width="99%">
+										<div id="errMsgID" class="contentSmall" style="color:red" align="center"></div>
+									</td>
+									<td class="content" align="right" valign="bottom" nowrap>
+										
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				
+				<tr>
+					<td width="1" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+					<td width="10" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="1" /></td>
+					<td width="100%" height="1" bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+				</tr>
+				<tr>
+					<td bgcolor="BFBFBF"><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+					<td><img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+					<td>
+						<table width="100%" border="0" cellspacing="0" cellpadding="3" name="sectionHeader2">
+							<tr>
+								<td>
+		
+				<table cellpadding="0" cellspacing="4" border="0" width="300" align="center">
+					<tr>
+						<td class="content" width="100">
+							<img src="images/spacer.gif" width="100" height="1" alt="" border="0" /><br />
+							<strong>Username:</strong>
+						</td>
+						<td class="content">
+							<input type="text" name="username" size="25" maxlength="25" class="content" value="" />
+						</td>
+					</tr>
+					<tr>
+						<td class="content"><strong>Password:</strong></td>
+						<td class="content">
+							<input type="password" name="password" size="25" maxlength="25" class="content" autocomplete="off" />
+						</td>
+					</tr>
+					<tr>
+						<td align="right" colspan="2">
+							<table cellpadding="0" cellspacing="0" border="0" width="100%">
+								<tr>
+									<td align="contentSmall"><a href="forgot_password.k2" class="contentSmall">Forgot your password?</a></td>
+									<td align="right"><input type="submit" name="userLogon" value="Logon" class="button2" /></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+				
+								</td>
+						</tr>
+					</table></td>
+			</tr>
+			<tr>
+				<td bgcolor="BFBFBF">
+					<img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="1" height="1" /></td>
+				<td colspan="2">
+					<img src="https://www.IdahoGMS.org/images/spacer.gif" alt="" width="10" height="5" /></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="left">
+					<img src="https://www.IdahoGMS.org/images/corner.gif" alt="corner" width="25" height="8" border="0" /></td>
+			</tr>
+		</table>
+	
+			</td>
+			
+		</form>
+	</tr>
+	
+	
+</table>
+
+	<body onload="document.dataForm.username.focus();pageLoad();"  />
+	
